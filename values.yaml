@@ -25,25 +25,25 @@ service:
 ingress:
   enabled: false
   # path: /
-  # hostname: 
+  # hostname:
   # annotations: {}
   # tls:
-  #   secretName: 
+  #   secretName:
 ########################################################
 
 ########################################################
-## By default rbac are not used and default service account 
-## is being used. 
+## By default rbac are not used and default service account
+## is being used.
 rbac:
   ## Create serviceAccount, Eole and RoleBindings
-  create: false
+  create: true
   ## Instead of Role, create a ClusterRole and ClusterRoleBindings
-  clusterWideAccess: false
+  clusterWideAccess: true
 ########################################################
 
 ########################################################
 ## Control requests limit
-## These values must be changed for production usage 
+## These values must be changed for production usage
 resources:
   cpu: 200m
   memory: 256Mi
@@ -51,7 +51,7 @@ resources:
 
 ########################################################
 ## It can take a lot of time for jenkins to be started
-## This is why the livenessProbe.initialDelaySeconds is high  
+## This is why the livenessProbe.initialDelaySeconds is high
 readinessProbe:
   timeout: 5
   initialDelaySeconds: 5
@@ -137,8 +137,8 @@ env:
 ########################################################
 ## Use external secrets as environment variables
 ## Each top level key represents an existing secret name
-## Its value is a list of keys that this secret contain and will 
-## be mapped as an environment variable 
+## Its value is a list of keys that this secret contain and will
+## be mapped as an environment variable
 envSecrets:
 #   my-jenkins-external-secret:
 #     - JENKINS_SECRET_KEY
@@ -172,4 +172,19 @@ managedConfig:
   security:
     securityOptions: {}
 
-
+  tools:
+    installations:
+      MVN-3.5.0:
+        type: maven
+        installers:
+          - id: '3.5.0'
+  seed_jobs:
+    seed-job:
+      source:
+        remote: https://github.com/odavid/my-bloody-jenkins.git
+        branch: 'master'
+      triggers:
+        pollScm: 'H/2 * * * *'
+        periodic: '@hourly'
+      pipeline: examples/jobs/seed/Jenkinsfile
+      executeWhen: always #firstTimeOnly always never
